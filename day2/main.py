@@ -3,6 +3,9 @@ x1 = 0
 x2 = 0
 
 def validate(a: int,b: int, prevIncreasing: bool, i: int) -> bool:
+    
+    if a==b: return False
+    
     distance = b-a
 
     if distance > 0:
@@ -10,7 +13,7 @@ def validate(a: int,b: int, prevIncreasing: bool, i: int) -> bool:
     else:
         isIncreasing = False
 
-    if not (distance >= -3 and distance <= 3) or distance == 0 or (i != 0 and prevIncreasing != isIncreasing):
+    if abs(distance) > 3 or (i != 0 and prevIncreasing != isIncreasing):
         return False
     return True
 
@@ -34,33 +37,21 @@ def partOne(x: str) -> int:
 
 def partTwo(x: str) -> int:
 
-    prevIncreasing = False
+
+    if partOne(x) == 1:
+        return 1
 
     x = x.replace("\n", "")
-
+        
     nums = list(map(int,x.split(" ")))
 
-    for i in range(0, len(nums)-1):
-        num1 = nums[i]
-        num2  = nums[i+1]
+    for i in range(len(nums)):
+                        
+        newList = nums[:i] + nums[i+1:]
 
-        isValid = validate(num1,num2,prevIncreasing,i)
-
-        if not isValid:
-           if i == 0:
-            firstList = ' '.join(list(map(str,nums[1:])))
-            secList = ' '.join(list(map(str,[nums[0]]+nums[2:])))
-
-            return max(partOne(firstList), partOne(secList))
-           elif i+1 != len(nums)-1:
-    
-               newNums =' '.join(list(map(str,nums[:i+1]+nums[i+2:])))
-               return partOne(newNums)
-           else:
-               return partOne(' '.join(list(map(str,nums[:len(nums)-1]))))
-        
-        prevIncreasing = (num2 - num1) > 0
-    return 1
+        if partOne(" ".join(list(map(str,newList)))) == 1:
+            return 1
+    return 0
         
 
 with open("day2/text.txt") as file:
