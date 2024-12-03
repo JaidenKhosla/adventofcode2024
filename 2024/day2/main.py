@@ -54,7 +54,7 @@ def partTwo(x: str) -> int:
     return 0
         
 
-with open("day2/text.txt") as file:
+with open("2024/day2/text.txt") as file:
     numOfCorrect1 = 0
     numOfCorrect2 = 0
 

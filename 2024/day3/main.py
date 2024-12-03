@@ -32,7 +32,7 @@ def getMuls(x: str, includeDoDont = False) -> list[int]:
     return products
 
 
-with open("day3/text.txt") as file:
+with open("2024/day3/text.txt") as file:
     
     text = file.read()
 
@@ -41,3 +41,4 @@ with open("day3/text.txt") as file:
     sumOfNumsForPT2 = sum(getMuls(text,True))
     print(f"ANSWER FOR PT 1: {sumOfNums}")
     print(f"ANSWER FOR PT 2: {sumOfNumsForPT2}")
+    file.close()

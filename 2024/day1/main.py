@@ -12,7 +12,7 @@ def getDistance(x: str) -> int:
     right.append(rightNum)
 
 
-with open("day1/text.txt") as file:
+with open("2024/day1/text.txt") as file:
     x1 = 0
     x2 = 0
     for line in file.readlines():
