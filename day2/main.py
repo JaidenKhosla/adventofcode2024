@@ -78,3 +78,4 @@ with open("day2/text.txt") as file:
             print(line)
     print(f"Part 1: {x1}\nPart 2: {x2}")
     print(f"NUMBER OF WRONG FOR PT 1: {numOfLines-numOfCorrect1}\nNUMBER OF WRONG FOR PT 2: {numOfLines-numOfCorrect2}")
+    file.close()

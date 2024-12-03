@@ -30,4 +30,4 @@ with open("day1/text.txt") as file:
          x2+= (num*right.count(num))
     
     print(f"PART ONE: {x1}\nPART TWO: {x2}")
-
+    file.close()
