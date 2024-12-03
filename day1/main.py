@@ -13,20 +13,21 @@ def getDistance(x: str) -> int:
 
 
 with open("day1/text.txt") as file:
-    x = 0
+    x1 = 0
+    x2 = 0
     for line in file.readlines():
         getDistance(line)
   
-# for part one
-#     left.sort()
-#     right.sort()
+    left.sort()
+    right.sort()
 
 
-  
-#     for a,b in zip(left, right):
-#         x += abs(a-b)
+    #part 1
+    for a,b in zip(left, right):
+        x1 += abs(a-b)
   #part 2
     for num in left:
-         x+= (num*right.count(num))
-    print(x)
+         x2+= (num*right.count(num))
+    
+    print(f"PART ONE: {x1}\nPART TWO: {x2}")
 
