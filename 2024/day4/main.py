@@ -55,5 +55,5 @@ with open("2024/day4/text.txt") as file:
     print(f"PARTONE: {partOne}")
     partTwo = usedInXofMAS(splittedFile)
     print(f"PARTTWO: {partTwo}")
-
+    file.close()
 #spent two hours trying to figure out what was wrong with the my left diagonal for usedInXmas. Turns out it was a single boolean torturing me.
