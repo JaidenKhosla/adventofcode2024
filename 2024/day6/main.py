@@ -1,111 +1,97 @@
-class Grid:
-    def __init__(self, map:str):
-        self.map: list[list[str]] = [list(i) for i in map.split("\n")]
-        self.agentPos = self.findAgent()
-        self.originalAgentPos = self.findAgent()
-        self.originalDirection = self.getDirection()
-        self.direction = self.getDirection()
+import copy
+import tqdm
+
+def partOne(strMap: list[list[str]]) -> tuple[int]:
+    strMap = copy.deepcopy(strMap)
+    directions = [(-1,0),(0,1),(1,0),(0,-1)]
+
+    di = 0
+
+    rows = len(strMap)
+    columns = len(strMap[0])
+
+    y,x = 0,0
+
+    for i in range(rows):
+        for j in range(columns):
+            if strMap[i][j] == "^":
+                y,x = i,j
+
+    seen = set()
+
+    while True:
+
+        seen.add((y,x))
+
+        nextY = y+directions[di][0]
+        nextX = x+directions[di][1]
+
+        if (nextY < 0 or nextY >= rows) or (nextX < 0 or nextX >= columns):
+            break
+
+        if strMap[nextY][nextX] == "#":
+            di = (di+1)%4
+            continue
+
+        y,x = nextY,nextX
+        strMap[y][x] = "0"
+    return seen
 
 
-    def findAgent(self) -> tuple[int]:
-        for rowIndex,row in enumerate(self.map):
-            for columnIndex,column in enumerate(row):
-                if column in "<>v^":
-                    return (rowIndex,columnIndex)
-    def getDirection(self) -> tuple[int]:
-        y,x = self.agentPos
-        agent = self.map[y][x]
-        if agent == "<":
-            return (0,-1)
-        elif agent == ">":
-            return (0,1)
-        elif agent == "^":
-            return (-1,0)
-        elif agent == "v":
-            return (1,0)
-        return (0,0)
-    
-    def addVectors(self, a: tuple[int], b: tuple[int]) -> tuple[int]:
-        y1,x1 = a
-        y2, x2 = b
-        return (y1+y2, x1+x2)
+def partTwo(strMap: list[list[str]]):
 
-    def changeDirectionBasedOnCollisions(self) -> int:
+    x,y = 0,0
+
+    for i in range(len(strMap)):
+        for j in range(len(strMap)):
+            if strMap[i][j] == "^":
+                x,y = j,i
+  
+    def isALoop(ro,col) -> bool:
+        if strMap[ro][col] in ("#","^"):
+            return False
+        
+
+        strMap[ro][col] = "#"
+
+        directions = [(-1,0),(0,1),(1,0),(0,-1)]
+        rows, cols = len(strMap), len(strMap)
+
+        loopSeen = set()
+
+        loopDi = 0
+
+        agentY, agentX = y,x
+
         while True:
-            y,x = self.addVectors(self.agentPos,self.direction)
-            if (y < 0 or y > len(self.map)-1) or (x < 0 or x > len(self.map[0])-1):
-                return 0
-            item = self.map[y][x]
-            if item == "#":
-                rY, rX = self.direction
-                self.direction = (rX, -rY)
+            if (agentY, agentX, loopDi) in loopSeen:
+                strMap[ro][col] = "."
+                return True
+            
+            loopSeen.add((agentY,agentX, loopDi))
+
+            nextY2 = agentY+directions[loopDi][0]
+            nextX2 = agentX+directions[loopDi][1]
+
+            if not (0 <= nextY2 < rows and 0 <= nextX2 < rows):
+                strMap[ro][col] = "."
+                return False
+            
+            if strMap[nextY2][nextX2] == "#":
+                loopDi = (loopDi+1)%4
             else:
-                break
-        return 1
+                agentY, agentX = nextY2, nextX2
     
-    def agentSee(self) -> list[tuple[int]]:
-        return [(0,0)]
-
-    def traverse(self) -> int:
-        y,x = self.agentPos
-        character = self.map[y][x]
-        count = 0
-
-        positions = {(y,x): 0}
-
-        while(y < len(self.map) and x < len(self.map[0])):
-            y,x = self.agentPos
-            contniueMoving = self.changeDirectionBasedOnCollisions()
-            if contniueMoving == 0:
-                break
-
-            nY, nX = self.addVectors(self.agentPos, self.direction)
-            nItem = self.map[nY][nX]
-            self.agentPos = (nY,nX)
-
-            positions[(nY,nX)] = positions.get((nY,nX),0)+1
-            if positions[(nY,nX)] > 999:
-                print("LOOPED")
-                return 0
-
-            # print("\n".join([" ".join(i) for i in self.map]))
-            # print()
-        self.agentPos = self.originalAgentPos
-        self.direction = self.originalDirection
-        return len(positions.keys())
+    count = 0
+    seen = partOne(strMap)
+    for xx in tqdm.tqdm(seen):
+        i,j = xx
+        count+=isALoop(i,j)
     
-    def traverseWithPlacing(self) -> int:
-        count = 0
-        prevCharacter = None
-
-        for rowIndex, row in enumerate(self.map):
-            for columnIndex, column in enumerate(row):
-                
-                if columnIndex == 0 and rowIndex != 0:
-                    self.map[rowIndex-1][-1] = prevCharacter
-                elif rowIndex >= 0 and columnIndex > 0:
-                    self.map[rowIndex][columnIndex-1] = prevCharacter
-                
-                if columnIndex == self.agentPos[1] and rowIndex == self.agentPos[0]:
-                    continue
-
-                prevCharacter = self.map[rowIndex][columnIndex]
-                self.map[rowIndex][columnIndex] = "#"
-                # print(prevCharacter)
-                # print("\n".join(["".join(i) for i in strMap]))
-                # print("\n")
-                traverse = self.traverse()
-                # print(traverse)
-                if traverse == 0:
-                    count+=1
-        return count
-
+    return count
 
 with open("2024/day6/text.txt") as file:
-    mapGrid = file.read()
+    strMap = [list(i) for i in file.read().strip().split("\n")]
 
-    grid = Grid(mapGrid)
-
-    print(f"Part One: {grid.traverse()}")
-    print(f"Part Two: {grid.traverseWithPlacing()}")
-    file.close()
+    print("Part One: ", len(partOne(strMap)))
+    print("Part Two: ", partTwo(strMap))
