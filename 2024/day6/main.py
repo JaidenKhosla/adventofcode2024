@@ -2,7 +2,10 @@ class Grid:
     def __init__(self, map:str):
         self.map: list[list[str]] = [list(i) for i in map.split("\n")]
         self.agentPos = self.findAgent()
+        self.originalAgentPos = self.findAgent()
+        self.originalDirection = self.getDirection()
         self.direction = self.getDirection()
+
 
     def findAgent(self) -> tuple[int]:
         for rowIndex,row in enumerate(self.map):
@@ -48,6 +51,8 @@ class Grid:
         character = self.map[y][x]
         count = 0
 
+        positions = {(y,x): 0}
+
         while(y < len(self.map) and x < len(self.map[0])):
             y,x = self.agentPos
             contniueMoving = self.changeDirectionBasedOnCollisions()
@@ -56,15 +61,45 @@ class Grid:
 
             nY, nX = self.addVectors(self.agentPos, self.direction)
             nItem = self.map[nY][nX]
-            self.map[y][x] = "X" 
-            self.map[nY][nX] = "X"
             self.agentPos = (nY,nX)
+
+            positions[(nY,nX)] = positions.get((nY,nX),0)+1
+            if positions[(nY,nX)] > 999:
+                print("LOOPED")
+                return 0
 
             # print("\n".join([" ".join(i) for i in self.map]))
             # print()
-
-        return sum([i.count("X") for i in self.map])
+        self.agentPos = self.originalAgentPos
+        self.direction = self.originalDirection
+        return len(positions.keys())
     
+    def traverseWithPlacing(self) -> int:
+        count = 0
+        prevCharacter = None
+
+        for rowIndex, row in enumerate(self.map):
+            for columnIndex, column in enumerate(row):
+                
+                if columnIndex == 0 and rowIndex != 0:
+                    self.map[rowIndex-1][-1] = prevCharacter
+                elif rowIndex >= 0 and columnIndex > 0:
+                    self.map[rowIndex][columnIndex-1] = prevCharacter
+                
+                if columnIndex == self.agentPos[1] and rowIndex == self.agentPos[0]:
+                    continue
+
+                prevCharacter = self.map[rowIndex][columnIndex]
+                self.map[rowIndex][columnIndex] = "#"
+                # print(prevCharacter)
+                # print("\n".join(["".join(i) for i in strMap]))
+                # print("\n")
+                traverse = self.traverse()
+                # print(traverse)
+                if traverse == 0:
+                    count+=1
+        return count
+
 
 with open("2024/day6/text.txt") as file:
     mapGrid = file.read()
@@ -72,5 +107,5 @@ with open("2024/day6/text.txt") as file:
     grid = Grid(mapGrid)
 
     print(f"Part One: {grid.traverse()}")
-
+    print(f"Part Two: {grid.traverseWithPlacing()}")
     file.close()
