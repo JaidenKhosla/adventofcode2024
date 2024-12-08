@@ -1,43 +1,37 @@
-import functools
-import random
+import tqdm
+import itertools
 
-def validateWeight(line: str) -> int:
+
+def generateCombinations(operations: int, partOne):
+    operators =  ["+","*"]if partOne else ["+","*","||"]
+    x = list(itertools.product(operators, repeat=operations))
+    return x
+
+def executeExpression(nums, operations) -> int:
+    nums = nums.copy()
+    res = nums[0]
+    for index, operation in enumerate(operations):
+        if operation == "+":
+            res+=nums[index+1]
+        elif operation == "*":
+            res*=nums[index+1]
+        elif operation == "||":
+            res = int(str(res)+str(nums[index+1]))
+    return res
+
+def validateWeight(line: str, tenaryOP=False) -> int:
     # print(line)
     weight, nums = line.split(": ")
     nums = list(map(int,nums.split(" ")))
     weight = int(weight)
     
-    for i in range(2**len(nums)):
-        binary = list(bin(i)[2:].zfill(len(nums)-1)[::-1]+"_")
-        tempNums = nums.copy()
-        # print("".join(binary))
-        newList = []
-        breakPlease = False
-        for temp, tempOperation in zip(tempNums, binary):
-            # print("".join(newList))
-            newList.append(str(temp))
-
-            if len(newList) == 3:
-                x1,y1,z1 = [str(newList.pop(0)) for _ in range(3)]
-
-                newList.append(str(eval(x1+y1+z1)))
-            newList.append("+" if tempOperation == "0" else "*" if tempOperation == "1" else "")
-            if int(newList[0]) > weight:
-                # print(newList[0],"too big!")
-                breakPlease = True
-                break
-        
-        if breakPlease: continue
-        # print("".join(newList))
-        num = int(newList[0])
-        # print(num)
-
-        if num == weight:
-            # print(num,"\n")
-            return num
-
-        # print()
-
+    operations = generateCombinations(len(nums)-1, not tenaryOP)
+    for operation in operations:
+        result = executeExpression(nums, operation)
+        if result == weight:
+            # print(result, tenaryOP, operation)
+            return weight
+    
     return 0
 
 
@@ -45,11 +39,13 @@ def validateWeight(line: str) -> int:
 
 with open("2024/day7/test.txt") as file:
     count = 0
+    count2 = 0
     lines = file.read().strip().split("\n")
 
-    for line in lines:
+    for line in tqdm.tqdm(lines):
         count+=validateWeight(line)
-
-    print("Part One ", count)
+        count2+=validateWeight(line,True)
+    print("Part One: ", count)
+    print("Part Two: ", count2)
 
     file.close()
