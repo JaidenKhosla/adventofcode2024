@@ -6,11 +6,15 @@ with open("2024/day10/text.txt") as file:
 
 
 score = 0
+score2 = 0
 
 def navigate(row: int, col: int, listOfNines=set()):
     item = int(grid[row][col])
     if item == 9:
-        listOfNines.add((row,col))
+        if isinstance(listOfNines,set):
+            listOfNines.add((row,col))
+        elif isinstance(listOfNines,list):
+            listOfNines.append((row, col))
         return
     
     vertical = (row-1, row+1)
@@ -27,5 +31,7 @@ for rowIndex, row in enumerate(grid):
     for columnIndex, col in enumerate(row):
         if col == '0':
            score+= navigate(rowIndex, columnIndex, set())
+           score2+= navigate(rowIndex, columnIndex, list())
 
 print("Part 1: ", score)
+print("Part 2: ", score2)
